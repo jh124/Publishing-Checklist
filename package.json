@@ -1,0 +1,13 @@
+{
+  "name": "publishing-checklist",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A calm workspace for editing and publishing books.",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check dist/core.js && node --check dist/app.js && node --check dist/sw.js",
+    "dev": "node scripts/serve.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
