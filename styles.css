@@ -330,3 +330,6 @@ textarea.text-input { resize: vertical; min-height: 180px; line-height: 1.8; }
 /* One compact add control above the notes. */
 .add-note-card { grid-column: 1 / -1; min-height: 52px; height: 52px; }
 .note-heading { justify-content: flex-end; margin-bottom: 4px; }
+
+/* Also suppress the removed footer in an older cached document. */
+.workspace-footer { display: none; }

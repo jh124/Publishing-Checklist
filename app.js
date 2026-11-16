@@ -1,7 +1,7 @@
 import {
   STORAGE_KEY, TYPES, createInitialState, createProject, progress, sortedProjects,
   toggleItem, updateCompletion, validateState, uid,
-} from './core.js?v=4';
+} from './core.js?v=5';
 
 const icons = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -198,7 +198,7 @@ function toggleMenu(button, id) {
 }
 
 function dialogHeader(eyebrow, title) {
-  return `<div class="dialog-header"><div><p class="eyebrow">${eyebrow}</p><h2 id="editor-title">${escape(title)}</h2></div><button type="button" class="icon-button" data-close="editor-dialog" aria-label="Close">${icon('close')}</button></div>`;
+  return `<div class="dialog-header"><div>${eyebrow ? `<p class="eyebrow">${eyebrow}</p>` : ''}<h2 id="editor-title">${escape(title)}</h2></div><button type="button" class="icon-button" data-close="editor-dialog" aria-label="Close">${icon('close')}</button></div>`;
 }
 
 function openEditor(context, html, focusSelector) {
@@ -216,7 +216,7 @@ function newProject(type = 'edit-publish') {
 }
 
 function newNote(note = null) {
-  openEditor({ mode: note ? 'edit-note' : 'new-note', id: note?.id }, `<form id="note-form">${dialogHeader('YOUR WORDS, AT HAND', note ? 'Edit your note' : 'Add a prompt or note')}<div class="form-field"><label class="field-label" for="note-text">Prompt or note</label><textarea id="note-text" class="text-input" name="text" required maxlength="100000" placeholder="A prompt to reuse, a detail to remember…" rows="8">${escape(note ? noteContent(note) : '')}</textarea></div><p class="form-error" id="form-error" hidden></p><div class="dialog-actions"><button class="button secondary" type="button" data-close="editor-dialog">Cancel</button><button class="button" type="submit">${note ? 'Save changes' : 'Add note'}</button></div></form>`, '#note-text');
+  openEditor({ mode: note ? 'edit-note' : 'new-note', id: note?.id }, `<form id="note-form">${dialogHeader('', note ? 'Edit your note' : 'Add a prompt or note')}<div class="form-field"><textarea id="note-text" aria-label="Prompt or note" class="text-input" name="text" required maxlength="100000" rows="8">${escape(note ? noteContent(note) : '')}</textarea></div><p class="form-error" id="form-error" hidden></p><div class="dialog-actions"><button class="button secondary" type="button" data-close="editor-dialog">Cancel</button><button class="button" type="submit">${note ? 'Save changes' : 'Add note'}</button></div></form>`, '#note-text');
 }
 
 function editChecklist(project = null, type = project?.type) {
