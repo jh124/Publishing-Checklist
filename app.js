@@ -1,7 +1,7 @@
 import {
   STORAGE_KEY, TYPES, createInitialState, createProject, progress, sortedProjects,
   toggleItem, updateCompletion, validateState, uid,
-} from './core.js?v=5';
+} from './core.js?v=6';
 
 const icons = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -89,12 +89,12 @@ function counts() {
 function render() {
   closeMenus();
   document.getElementById('nav-projects').innerHTML = `${icon('projects')}Projects`;
-  document.getElementById('nav-notes').innerHTML = `${icon('notes')}Prompts / Notes`;
+  document.getElementById('nav-notes').innerHTML = `${icon('notes')}Notes`;
   for (const name of ['projects', 'notes']) {
     const link = document.getElementById(`nav-${name}`);
     if (page === name) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
   }
-  document.title = `${page === 'projects' ? 'Projects' : 'Prompts / Notes'} · Publishing Checklist`;
+  document.title = `${page === 'projects' ? 'Projects' : 'Notes'} · Publishing Checklist`;
   main.innerHTML = page === 'projects' ? renderProjects() : renderNotes();
   updateSaveLabel();
 }
@@ -166,8 +166,8 @@ function renderTemplateCards() {
 }
 
 function renderNotes() {
-  return `<section class="page-heading notes-heading" aria-labelledby="page-title"><div><h1 id="page-title">Prompts / Notes</h1></div></section>
-    <section class="note-grid" id="note-grid" aria-label="Prompts and notes">${renderNoteCards()}</section>`;
+  return `<section class="page-heading notes-heading" aria-labelledby="page-title"><div><h1 id="page-title">Notes</h1></div></section>
+    <section class="note-grid" id="note-grid" aria-label="Notes">${renderNoteCards()}</section>`;
 }
 
 function noteContent(note) {
@@ -216,7 +216,7 @@ function newProject(type = 'edit-publish') {
 }
 
 function newNote(note = null) {
-  openEditor({ mode: note ? 'edit-note' : 'new-note', id: note?.id }, `<form id="note-form">${dialogHeader('', note ? 'Edit your note' : 'Add a prompt or note')}<div class="form-field"><textarea id="note-text" aria-label="Prompt or note" class="text-input" name="text" required maxlength="100000" rows="8">${escape(note ? noteContent(note) : '')}</textarea></div><p class="form-error" id="form-error" hidden></p><div class="dialog-actions"><button class="button secondary" type="button" data-close="editor-dialog">Cancel</button><button class="button" type="submit">${note ? 'Save changes' : 'Add note'}</button></div></form>`, '#note-text');
+  openEditor({ mode: note ? 'edit-note' : 'new-note', id: note?.id }, `<form id="note-form">${dialogHeader('', note ? 'Edit your note' : 'Add a prompt or note')}<div class="form-field"><textarea id="note-text" aria-label="Prompt or note" placeholder="Frequent prompts, etc." class="text-input" name="text" required maxlength="100000" rows="8">${escape(note ? noteContent(note) : '')}</textarea></div><p class="form-error" id="form-error" hidden></p><div class="dialog-actions"><button class="button secondary" type="button" data-close="editor-dialog">Cancel</button><button class="button" type="submit">${note ? 'Save changes' : 'Add note'}</button></div></form>`, '#note-text');
 }
 
 function editChecklist(project = null, type = project?.type) {
