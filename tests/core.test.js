@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_TEMPLATES, MARGIN_NOTE, createInitialState, createProject, progress,
   sortedProjects, toggleItem, updateCompletion, validateState,
-} from '../dist/core.js';
+} from '../core.js';
 
 const projectAt = (name, done, total, createdAt, completedAt = null) => ({
   id: name, name, type: 'edit', createdAt, updatedAt: createdAt, completedAt,

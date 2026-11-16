@@ -21,20 +21,35 @@ Use Node.js 20 or newer. No installation or build step is required.
 npm run dev
 ```
 
-Open `http://localhost:3000`. Alternatively, serve the `dist` directory with any static web server.
+Open `http://localhost:3000`. The development server serves the app files from the repository root.
 
 ```sh
 npm run check
 npm test
 ```
 
-## Host
+## Publish with GitHub Pages
 
-The deployable app is the `dist` directory. Asset paths are relative so the app also works beneath a repository subpath such as `/Publishing-Checklist/`.
+Like Daily, the app files live at the top level of the repository. No build step or dependencies are required for GitHub Pages.
 
-For GitHub Pages, open **Settings → Pages**, set **Source** to **GitHub Actions**, and run the included **Deploy GitHub Pages** workflow. Run that workflow again whenever you want to publish an update to GitHub Pages. The separate **Check app** workflow verifies every push to `main` and every pull request.
+1. Open **Settings → Pages**.
+2. Set **Source** to **Deploy from a branch**.
+3. Choose **main** and **/ (root)**, then save.
+4. Open the Pages URL after deployment finishes.
 
-The `.openai/hosting.json` file connects the same source to its ChatGPT Site deployment.
+Pushing updates to `main` automatically republishes the app. All asset paths are relative, so it works at a project address such as `/Publishing-Checklist/`.
+
+If Pages is already configured this way, no settings change is needed. The **Check app** workflow verifies every push and pull request. The optional manual **Deploy GitHub Pages** workflow builds a static copy for repositories configured to use **GitHub Actions** instead.
+
+## Install on your home screen
+
+On iPhone, open the Pages URL in Safari, tap **Share → Add to Home Screen**, and open it from the new icon. It runs in its own window, like Daily. On Android or desktop Chrome, use the browser's **Install app** or **Add to Home Screen** option.
+
+The app shell is cached after the first online visit, so it can reopen offline without waiting for the network. Projects, templates, and notes remain saved on that device.
+
+## Other static hosts
+
+Run `npm run build` to copy the public app files into an ignored `dist` directory. The `.openai/hosting.json` file retains the existing ChatGPT Site connection and points at that build output. Root files remain the source of truth.
 
 ## Your data
 
@@ -42,15 +57,17 @@ Projects, completion status, templates, and notes are stored in this browser’s
 
 Use the three-dot menu beside the app title to **Export backup** or **Restore from backup**. Restore validates the file and asks before replacing the workspace. Export a backup before clearing browser data or moving to a new device. Browser storage can be cleared by the browser or operating system; the backup is your portable copy.
 
-The interface uses Google Fonts when available, with local system and serif fallbacks. App assets are cached for offline use; requests prefer the network so updates are picked up when connected.
+The interface uses Google Fonts when available, with local system and serif fallbacks. The versioned app shell loads from the installed cache; service worker updates replace it when connected. Saved data belongs to the website address: export/import a backup to move work from another address.
 
 ## Files
 
-- `dist/index.html` — accessible application shell
-- `dist/styles.css` — responsive interface
-- `dist/app.js` — UI, forms, notes, persistence, backup/restore
-- `dist/core.js` — exact templates, ordering, completion rules, state validation
-- `dist/sw.js` — offline asset caching
+- `index.html` — accessible application shell and GitHub Pages entry point
+- `styles.css` — responsive interface
+- `app.js` — UI, forms, notes, persistence, backup/restore
+- `core.js` — exact templates, ordering, completion rules, state validation
+- `sw.js` — offline asset caching
+- `manifest.webmanifest` and PNG icons — standalone home-screen installation
 - `tests/core.test.js` — workflow and data behavior tests
 - `scripts/serve.mjs` — dependency-free development server
+- `scripts/build.mjs` — optional static output for other hosts
 

@@ -31,7 +31,7 @@ button svg { pointer-events: none; }
 :focus-visible { outline: 3px solid #9dab70; outline-offset: 4px; }
 .skip-link { position: fixed; top: -100px; left: 16px; background: var(--green); color: white; padding: 12px; z-index: 100; }
 .skip-link:focus { top: 16px; }
-.app-shell { width: min(1056px, calc(100% - 80px)); margin: 0 auto; padding-bottom: 130px; }
+.app-shell { width: min(1056px, calc(100% - 80px)); margin: 0 auto; padding-top: env(safe-area-inset-top); padding-bottom: 130px; }
 .site-header { height: 106px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); gap: 20px; }
 .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); font-size: 16px; font-weight: 600; letter-spacing: -.45px; }
 .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; background: var(--green); color: var(--paper); border-radius: 10px; transform: rotate(-3deg); }
@@ -217,6 +217,7 @@ textarea.text-input { resize: vertical; min-height: 180px; line-height: 1.8; }
 .noscript { padding: 30px; text-align: center; color: var(--danger); }
 @media (min-width: 1400px) { .app-shell { width: min(1056px, calc(100% - 120px)); } .site-header { height: 116px; } .page-heading { margin-top: 55px; } }
 @media (max-width: 760px) {
+  .text-input, .search-field input { font-size: 16px; }
   .app-shell { width: calc(100% - 40px); }
   .site-header { height: 85px; }
   .brand { font-size: 14px; gap: 9px; }
@@ -302,7 +303,7 @@ textarea.text-input { resize: vertical; min-height: 180px; line-height: 1.8; }
   .add-note-card { min-height: 125px; }
   .note-toolbar { gap: 10px; }
   .note-toolbar p { font-size: 10px; }
-  .search-field input { width: 120px; font-size: 10px; }
+  .search-field input { width: 120px; font-size: 16px; }
   .page-heading.notes-heading h1 { font-size: 41px; }
   .page-heading.notes-heading > .button { font-size: 10px; padding: 9px; }
   .dialog form { padding: 23px 20px; }
@@ -315,5 +316,6 @@ textarea.text-input { resize: vertical; min-height: 180px; line-height: 1.8; }
   .type-option small { font-size: 9px; }
   .step-editor-row { gap: 5px; }
   .step-editor-row .step-index { width: 14px; }
+  .step-editor-row textarea { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }

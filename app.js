@@ -1,7 +1,7 @@
 import {
   STORAGE_KEY, TYPES, createInitialState, createProject, progress, sortedProjects,
   toggleItem, updateCompletion, validateState, uid,
-} from './core.js';
+} from './core.js?v=2';
 
 const icons = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -508,5 +508,5 @@ window.addEventListener('storage', event => {
 
 render();
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
 }
