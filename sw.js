@@ -1,8 +1,8 @@
 // Keep the installed app shell ready to open, even on a slow or absent network.
 const PREFIX = `publishing-checklist:${new URL(self.registration.scope).pathname}:`;
-const CACHE = `${PREFIX}v2`;
+const CACHE = `${PREFIX}v3`;
 const ASSETS = [
-  './', './index.html', './styles.css?v=2', './core.js?v=2', './app.js?v=2',
+  './', './index.html', './styles.css?v=3', './core.js?v=3', './app.js?v=3',
   './icon.svg', './icon-192.png', './icon-512.png', './apple-touch-icon.png',
   './manifest.webmanifest',
 ];

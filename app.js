@@ -1,7 +1,7 @@
 import {
   STORAGE_KEY, TYPES, createInitialState, createProject, progress, sortedProjects,
   toggleItem, updateCompletion, validateState, uid,
-} from './core.js?v=2';
+} from './core.js?v=3';
 
 const icons = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -30,7 +30,6 @@ let state;
 let damagedStorage = false;
 let saved = true;
 let filter = 'all';
-let search = '';
 let page = location.hash === '#notes' ? 'notes' : 'projects';
 const expanded = new Set();
 let toastTimer;
@@ -97,8 +96,6 @@ function render() {
   }
   document.title = `${page === 'projects' ? 'Projects' : 'Prompts / Notes'} · Publishing Checklist`;
   main.innerHTML = page === 'projects' ? renderProjects() : renderNotes();
-  const count = page === 'projects' ? state.projects.length : state.notes.length;
-  document.getElementById('footer-count').textContent = `${count} ${page === 'projects' ? `project${count === 1 ? '' : 's'}` : `note${count === 1 ? '' : 's'}`} in your workspace`;
   updateSaveLabel();
 }
 
@@ -117,7 +114,7 @@ function renderProjects() {
   }).join('');
   return `
     <section class="page-heading" aria-labelledby="page-title">
-      <div><p class="eyebrow">YOUR PUBLISHING WORKSPACE</p><h1 id="page-title">Projects</h1><p class="page-description">From the first transcription to the final page.</p></div>
+      <div><h1 id="page-title">Projects</h1></div>
       <button class="button" data-action="new-project">${icon('plus')}Add project</button>
     </section>
     <div class="stats" aria-label="Workspace summary">
@@ -139,14 +136,13 @@ function renderProject(project) {
   const status = progress(project);
   const percent = Math.round(status.ratio * 100);
   const open = expanded.has(project.id);
-  const next = project.items.find(item => !item.done);
   const name = escape(project.name);
   const id = escape(project.id);
   const circumference = 2 * Math.PI * 17;
   return `<article class="project-card project-type-${project.type} ${open ? 'expanded' : ''} ${status.finished ? 'finished' : ''}" data-project="${id}">
     <button class="project-summary" id="project-summary-${id}" data-action="expand-project" data-id="${id}" aria-expanded="${open}" aria-controls="project-details-${id}">
       <span class="project-symbol">${icon(status.finished ? 'check' : TYPES[project.type].icon)}</span>
-      <span class="project-info"><span class="project-title-row"><span class="project-title">${name}</span><span class="badge">${TYPES[project.type].label}</span></span><span class="project-next">${status.finished ? `<em>All done.</em> Finished ${formatDate(project.completedAt ?? project.updatedAt)}` : `<em>Up next</em>${escape(next.text)}`}</span></span>
+      <span class="project-info"><span class="project-title-row"><span class="project-title">${name}</span><span class="badge">${TYPES[project.type].label}</span></span></span>
       <span class="project-status"><span class="project-progress-label"><strong>${status.done} of ${status.total}</strong>steps complete</span><span class="ring" role="img" aria-label="${percent}% complete, ${status.done} of ${status.total} steps"><svg viewBox="0 0 42 42" aria-hidden="true"><circle class="track" cx="21" cy="21" r="17"/><circle class="fill" cx="21" cy="21" r="17" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference * (1 - status.ratio)}"/></svg><span class="ring-number">${status.finished ? icon('check') : `${percent}%`}</span></span>${icon('chevron', 'summary-chevron')}</span>
     </button>
     <div id="project-details-${id}" class="project-details" ${open ? '' : 'hidden'}>
@@ -170,15 +166,13 @@ function renderTemplateCards() {
 }
 
 function renderNotes() {
-  return `<section class="page-heading notes-heading" aria-labelledby="page-title"><div><p class="eyebrow">WORDS WORTH KEEPING</p><h1 id="page-title">Prompts / Notes</h1><p class="page-description">Your useful prompts, small details, and good ideas.</p></div><button class="button" data-action="new-note">${icon('plus')}Add new</button></section>
-    <div class="note-toolbar"><p>Keep the details close at hand.</p><label class="search-field">${icon('search')}<input type="search" id="note-search" placeholder="Search your notes" aria-label="Search notes" value="${escape(search)}"></label></div>
+  return `<section class="page-heading notes-heading" aria-labelledby="page-title"><div><h1 id="page-title">Prompts / Notes</h1></div><button class="button" data-action="new-note">${icon('plus')}Add new</button></section>
     <section class="note-grid" id="note-grid" aria-label="Prompts and notes">${renderNoteCards()}</section>`;
 }
 
 function renderNoteCards() {
-  const query = search.trim().toLocaleLowerCase();
-  const notes = state.notes.filter(note => `${note.title}\n${note.text}`.toLocaleLowerCase().includes(query));
-  return notes.map(note => `<article class="note-card"><div class="note-heading"><h2>${escape(note.title)}</h2><div class="menu-wrap"><button class="icon-button" data-toggle-menu="note-menu-${escape(note.id)}" aria-label="Options for ${escape(note.title)}" aria-expanded="false" aria-controls="note-menu-${escape(note.id)}">${icon('more')}</button><div id="note-menu-${escape(note.id)}" class="dropdown" hidden><button data-action="edit-note" data-id="${escape(note.id)}">Edit note</button><button class="danger-text" data-action="delete-note" data-id="${escape(note.id)}">Delete note</button></div></div></div><pre>${escape(note.text)}</pre><div class="note-card-footer"><time datetime="${new Date(note.updatedAt).toISOString()}">Updated ${formatDate(note.updatedAt)}</time><button class="copy-button" data-action="copy-note" data-id="${escape(note.id)}" aria-label="Copy ${escape(note.title)}">${icon('copy')}Copy text</button></div></article>`).join('') + (query && notes.length === 0 ? '<div class="empty-state"><h2>No matching notes.</h2><p>Try a different word or add something new.</p></div>' : '') + `<button class="add-note-card" data-action="new-note">${icon('plus')}A place for your next idea</button>`;
+  const notes = state.notes;
+  return notes.map(note => `<article class="note-card"><div class="note-heading"><h2>${escape(note.title)}</h2><div class="menu-wrap"><button class="icon-button" data-toggle-menu="note-menu-${escape(note.id)}" aria-label="Options for ${escape(note.title)}" aria-expanded="false" aria-controls="note-menu-${escape(note.id)}">${icon('more')}</button><div id="note-menu-${escape(note.id)}" class="dropdown" hidden><button data-action="edit-note" data-id="${escape(note.id)}">Edit note</button><button class="danger-text" data-action="delete-note" data-id="${escape(note.id)}">Delete note</button></div></div></div><pre>${escape(note.text)}</pre><div class="note-card-footer"><time datetime="${new Date(note.updatedAt).toISOString()}">Updated ${formatDate(note.updatedAt)}</time><button class="copy-button" data-action="copy-note" data-id="${escape(note.id)}" aria-label="Copy ${escape(note.title)}">${icon('copy')}Copy text</button></div></article>`).join('') + `<button class="add-note-card" data-action="new-note" aria-label="Add prompt or note">${icon('plus')}</button>`;
 }
 
 function formatDate(timestamp) {
@@ -401,13 +395,6 @@ main.addEventListener('change', event => {
   if (!wasFinished && progress(project).finished) toast(`All done. “${project.name}” is finished!`);
 });
 
-main.addEventListener('input', event => {
-  if (event.target.id === 'note-search') {
-    search = event.target.value;
-    document.getElementById('note-grid').innerHTML = renderNoteCards();
-  }
-});
-
 editor.addEventListener('submit', event => {
   event.preventDefault();
   const form = event.target;
@@ -430,7 +417,6 @@ editor.addEventListener('submit', event => {
     const note = state.notes.find(note => note.id === currentEditor.id);
     if (note) Object.assign(note, { title, text, updatedAt: Date.now() });
     else state.notes.unshift({ id: uid(), title, text, createdAt: Date.now(), updatedAt: Date.now() });
-    search = '';
     persist(); editor.close(); render(); toast(note ? 'Note updated.' : 'Note added to your workspace.');
   } else {
     const items = editorItems();
@@ -474,7 +460,7 @@ document.getElementById('import-file').addEventListener('change', async event =>
     state = restored;
     damagedStorage = false;
     saved = true;
-    filter = 'all'; search = ''; expanded.clear();
+    filter = 'all'; expanded.clear();
     document.getElementById('storage-warning').hidden = true;
     render(); toast('Your workspace has been restored.');
   } catch (error) {

@@ -319,3 +319,9 @@ textarea.text-input { resize: vertical; min-height: 180px; line-height: 1.8; }
   .step-editor-row textarea { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+/* Compact headings after removing the introductory copy. */
+.page-heading { align-items: center; }
+.page-heading h1 { margin-bottom: 0; }
+.page-heading > .button { margin-top: 0; }
+.project-title-row { margin-bottom: 0; }
