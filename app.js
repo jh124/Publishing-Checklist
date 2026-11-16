@@ -1,7 +1,7 @@
 import {
   STORAGE_KEY, TYPES, createInitialState, createProject, progress, sortedProjects,
   toggleItem, updateCompletion, validateState, uid,
-} from './core.js?v=3';
+} from './core.js?v=4';
 
 const icons = {
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -166,13 +166,18 @@ function renderTemplateCards() {
 }
 
 function renderNotes() {
-  return `<section class="page-heading notes-heading" aria-labelledby="page-title"><div><h1 id="page-title">Prompts / Notes</h1></div><button class="button" data-action="new-note">${icon('plus')}Add new</button></section>
+  return `<section class="page-heading notes-heading" aria-labelledby="page-title"><div><h1 id="page-title">Prompts / Notes</h1></div></section>
     <section class="note-grid" id="note-grid" aria-label="Prompts and notes">${renderNoteCards()}</section>`;
+}
+
+function noteContent(note) {
+  const firstLine = note.text.trim().split(/\r?\n/)[0];
+  return note.title && note.title !== firstLine.slice(0, 200) ? `${note.title}\n\n${note.text}` : note.text;
 }
 
 function renderNoteCards() {
   const notes = state.notes;
-  return notes.map(note => `<article class="note-card"><div class="note-heading"><h2>${escape(note.title)}</h2><div class="menu-wrap"><button class="icon-button" data-toggle-menu="note-menu-${escape(note.id)}" aria-label="Options for ${escape(note.title)}" aria-expanded="false" aria-controls="note-menu-${escape(note.id)}">${icon('more')}</button><div id="note-menu-${escape(note.id)}" class="dropdown" hidden><button data-action="edit-note" data-id="${escape(note.id)}">Edit note</button><button class="danger-text" data-action="delete-note" data-id="${escape(note.id)}">Delete note</button></div></div></div><pre>${escape(note.text)}</pre><div class="note-card-footer"><time datetime="${new Date(note.updatedAt).toISOString()}">Updated ${formatDate(note.updatedAt)}</time><button class="copy-button" data-action="copy-note" data-id="${escape(note.id)}" aria-label="Copy ${escape(note.title)}">${icon('copy')}Copy text</button></div></article>`).join('') + `<button class="add-note-card" data-action="new-note" aria-label="Add prompt or note">${icon('plus')}</button>`;
+  return `<button class="add-note-card" data-action="new-note" aria-label="Add prompt or note">${icon('plus')}</button>` + notes.map(note => `<article class="note-card"><div class="note-heading"><div class="menu-wrap"><button class="icon-button" data-toggle-menu="note-menu-${escape(note.id)}" aria-label="Options for ${escape(note.title)}" aria-expanded="false" aria-controls="note-menu-${escape(note.id)}">${icon('more')}</button><div id="note-menu-${escape(note.id)}" class="dropdown" hidden><button data-action="edit-note" data-id="${escape(note.id)}">Edit note</button><button class="danger-text" data-action="delete-note" data-id="${escape(note.id)}">Delete note</button></div></div></div><pre>${escape(noteContent(note))}</pre><div class="note-card-footer"><time datetime="${new Date(note.updatedAt).toISOString()}">Updated ${formatDate(note.updatedAt)}</time><button class="copy-button" data-action="copy-note" data-id="${escape(note.id)}" aria-label="Copy ${escape(note.title)}">${icon('copy')}Copy text</button></div></article>`).join('');
 }
 
 function formatDate(timestamp) {
@@ -211,7 +216,7 @@ function newProject(type = 'edit-publish') {
 }
 
 function newNote(note = null) {
-  openEditor({ mode: note ? 'edit-note' : 'new-note', id: note?.id }, `<form id="note-form">${dialogHeader('YOUR WORDS, AT HAND', note ? 'Edit your note' : 'Add a prompt or note')}<div class="form-field"><label class="field-label" for="note-title">Title</label><input class="text-input" id="note-title" name="title" required maxlength="200" placeholder="Give it a useful name" value="${escape(note?.title ?? '')}" autocomplete="off"></div><div class="form-field"><label class="field-label" for="note-text">Prompt or note</label><textarea id="note-text" class="text-input" name="text" required maxlength="100000" placeholder="A prompt to reuse, a detail to remember…" rows="8">${escape(note?.text ?? '')}</textarea></div><p class="form-error" id="form-error" hidden></p><div class="dialog-actions"><button class="button secondary" type="button" data-close="editor-dialog">Cancel</button><button class="button" type="submit">${note ? 'Save changes' : 'Add note'}</button></div></form>`, '#note-title');
+  openEditor({ mode: note ? 'edit-note' : 'new-note', id: note?.id }, `<form id="note-form">${dialogHeader('YOUR WORDS, AT HAND', note ? 'Edit your note' : 'Add a prompt or note')}<div class="form-field"><label class="field-label" for="note-text">Prompt or note</label><textarea id="note-text" class="text-input" name="text" required maxlength="100000" placeholder="A prompt to reuse, a detail to remember…" rows="8">${escape(note ? noteContent(note) : '')}</textarea></div><p class="form-error" id="form-error" hidden></p><div class="dialog-actions"><button class="button secondary" type="button" data-close="editor-dialog">Cancel</button><button class="button" type="submit">${note ? 'Save changes' : 'Add note'}</button></div></form>`, '#note-text');
 }
 
 function editChecklist(project = null, type = project?.type) {
@@ -253,11 +258,11 @@ function confirmAction(title, description, action = 'Delete', danger = true) {
 async function copyNote(note) {
   try {
     if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-    await navigator.clipboard.writeText(note.text);
+    await navigator.clipboard.writeText(noteContent(note));
     toast('Note copied to your clipboard.');
   } catch {
     const textarea = document.createElement('textarea');
-    textarea.value = note.text;
+    textarea.value = noteContent(note);
     textarea.style.cssText = 'position:fixed;left:-9999px;top:0';
     document.body.append(textarea);
     textarea.select();
@@ -371,7 +376,14 @@ document.addEventListener('click', event => {
   if (!event.target.closest('.menu-wrap')) closeMenus();
 });
 
+document.addEventListener('pointerdown', () => {
+  document.documentElement.classList.remove('keyboard-navigation');
+}, true);
+
 document.addEventListener('keydown', event => {
+  if (['Tab', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+    document.documentElement.classList.add('keyboard-navigation');
+  }
   if (event.key === 'Escape') closeMenus();
   if (event.key === 'ArrowDown' && event.target.closest('[data-toggle-menu], #data-menu-button')) {
     const button = event.target.closest('button');
@@ -411,9 +423,9 @@ editor.addEventListener('submit', event => {
       toast('Your project is ready. One step at a time.');
     } catch (error) { setFormError(error.message); }
   } else if (currentEditor.mode === 'new-note' || currentEditor.mode === 'edit-note') {
-    const title = String(data.get('title')).trim();
     const text = String(data.get('text')).trim();
-    if (!title || !text) { setFormError('Add a title and some text for your note.'); return; }
+    if (!text) { setFormError('Add some text for your note.'); return; }
+    const title = text.split(/\r?\n/)[0].slice(0, 200);
     const note = state.notes.find(note => note.id === currentEditor.id);
     if (note) Object.assign(note, { title, text, updatedAt: Date.now() });
     else state.notes.unshift({ id: uid(), title, text, createdAt: Date.now(), updatedAt: Date.now() });

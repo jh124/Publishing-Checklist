@@ -28,7 +28,8 @@ button { color: inherit; }
 svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 button svg { pointer-events: none; }
 [hidden] { display: none !important; }
-:focus-visible { outline: 3px solid #9dab70; outline-offset: 4px; }
+:focus { outline: none; }
+.keyboard-navigation :focus-visible { outline: 2px solid #777c72; outline-offset: 4px; }
 .skip-link { position: fixed; top: -100px; left: 16px; background: var(--green); color: white; padding: 12px; z-index: 100; }
 .skip-link:focus { top: 16px; }
 .app-shell { width: min(1056px, calc(100% - 80px)); margin: 0 auto; padding-top: env(safe-area-inset-top); padding-bottom: 130px; }
@@ -178,7 +179,7 @@ h1 { font-family: var(--serif); color: var(--ink); font-weight: 400; font-size: 
 .dialog-header .icon-button { margin: -6px -6px 0 0; flex-shrink: 0; }
 .field-label { display: block; font-size: 12px; font-weight: 550; color: var(--ink); margin: 0 0 8px; }
 .text-input { width: 100%; background: #fbfcf7; color: var(--text); border: 1px solid #dce0d2; border-radius: 8px; padding: 11px 12px; font-size: 13px; }
-.text-input:focus { outline: 2px solid #a8bc98; outline-offset: 1px; border-color: transparent; }
+.text-input:focus { border-color: #b0b7a8; }
 .text-input::placeholder { color: #a0a594; }
 textarea.text-input { resize: vertical; min-height: 180px; line-height: 1.8; }
 .form-field { margin-bottom: 23px; }
@@ -325,3 +326,7 @@ textarea.text-input { resize: vertical; min-height: 180px; line-height: 1.8; }
 .page-heading h1 { margin-bottom: 0; }
 .page-heading > .button { margin-top: 0; }
 .project-title-row { margin-bottom: 0; }
+
+/* One compact add control above the notes. */
+.add-note-card { grid-column: 1 / -1; min-height: 52px; height: 52px; }
+.note-heading { justify-content: flex-end; margin-bottom: 4px; }
